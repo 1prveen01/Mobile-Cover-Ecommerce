@@ -2,8 +2,9 @@ import mongoose, { Document, Schema } from "mongoose";
 
 export interface CategoryInterface extends Document {
   categoryName: string;
-  createdAt: Date;
-  updatedAt: Date;
+  isDeleted?: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 const categorySchema:Schema<CategoryInterface> = new Schema(
@@ -14,6 +15,10 @@ const categorySchema:Schema<CategoryInterface> = new Schema(
       unique : true,
       trim: true
     },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    }
   },
   {
     timestamps: true,

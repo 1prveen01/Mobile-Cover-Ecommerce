@@ -5,12 +5,12 @@ import { productSchema } from "@/schemas/productSchema";
 import { z } from "zod";
 import mongoose from "mongoose";
 
-
-
-
 //utility function to check the objectid is valid or not
 const isValidObjectId = (id: string) => mongoose.Types.ObjectId.isValid(id);
 
+
+
+//function for getting a product by id
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } } // here we are doing Function parameter destructuring with type annotation
@@ -26,7 +26,7 @@ export async function GET(
       );
     }
 
-    const product = await ProductModel.findById(params.id).populate(
+    const product = await ProductModel.findOne({_id: params.id , isDeleted: false}).populate(
       "productCategory"
     );
 
@@ -37,7 +37,7 @@ export async function GET(
       );
     }
 
-    return NextResponse.json({ success: true, data: product });
+    return NextResponse.json({ success: true, message: "Product fetched Successfully" ,data: product },{status: 200});
   } catch (error) {
     console.error("Error fetching product:", error);
     return NextResponse.json(
@@ -50,6 +50,8 @@ export async function GET(
   }
 }
 
+
+//function for updating a product
 export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -58,7 +60,7 @@ export async function PATCH(
     await dbConnect();
 
     //validating params.id
-    if (!isValidObjectId) {
+    if (!isValidObjectId(params.id)) {
       return NextResponse.json(
         {
           success: false,
@@ -111,7 +113,7 @@ export async function PATCH(
     const updatedProduct = await ProductModel.findByIdAndUpdate(
       params.id,
       {
-        $set: { ...validatedData, finalPrice },
+        $set: { ...validatedData, ...(finalPrice !== undefined && { finalPrice}) },
       },
       { new: true }
     ).populate("productCategory");
@@ -127,7 +129,11 @@ export async function PATCH(
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { success: false, message: "Validation failed", errors: error.issues },
+        {
+          success: false,
+          message: "Validation failed while updating the product",
+          errors: error.issues,
+        },
         { status: 400 }
       );
     }
@@ -143,6 +149,53 @@ export async function PATCH(
 }
 
 
-export async function DELETE(request: NextRequest , {params} : {params: {id: string}}){
-  
+//function for deleting a product
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+
+    await dbConnect()
+
+    //validating object id 
+    if(!isValidObjectId(params.id)){
+      return NextResponse.json({
+        success: false,
+        message: "Invalid product Id"
+      }, {status: 400})
+    }
+
+    const product = await ProductModel.findByIdAndUpdate(params.id , {$set : {isDeleted: true}},  {new : true})
+    if(!product){
+      return NextResponse.json({
+        success: false,
+        message: "Product not found with this id"
+      }, {status: 404})
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: "Product Deleted Successfully",
+      data: product,
+    }, {
+      status: 200
+    })
+
+
+
+  } catch (error) {
+    
+    console.error("Something went wrong while deleting the product");
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Something went wrong while deleting the product",
+      },
+      {
+        status: 500,
+      }
+    );
+  }
 }
+

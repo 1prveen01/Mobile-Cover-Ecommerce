@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document } from "mongoose";
-import  { CategoryInterface } from "./category.model";
+import { CategoryInterface } from "./category.model";
 
 export interface ProductInterface extends Document {
   productName: string;
@@ -9,10 +9,11 @@ export interface ProductInterface extends Document {
   finalPrice: number;
   productCategory: mongoose.Types.ObjectId | CategoryInterface;
   discount?: number;
-  colors?: string;
-  compatibleModels: string[];
+  colors?: string[];
+  compatibleModels?: string[];
   createdAt: Date;
   updatedAt: Date;
+  isDeleted: boolean;
 }
 
 const productSchema: Schema<ProductInterface> = new Schema(
@@ -29,6 +30,7 @@ const productSchema: Schema<ProductInterface> = new Schema(
       type: Schema.Types.ObjectId,
       ref: "Category",
       required: true,
+     
     },
     productImage: [
       {
@@ -47,14 +49,20 @@ const productSchema: Schema<ProductInterface> = new Schema(
     finalPrice: {
       type: Number,
     },
-    colors: {
-      type: String,
-    },
+    colors: [
+      {
+        type: String,
+      },
+    ],
     compatibleModels: [
       {
         type: String,
       },
     ],
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

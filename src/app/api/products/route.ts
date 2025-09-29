@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
   } catch (err) {
     if (err instanceof z.ZodError) {
       return NextResponse.json(
-        { success: false, message: "Validation failed", errors: err.issues },
+        { success: false, message: "Validation failed while creating the product", errors: err.issues },
         { status: 400 }
       );
     }
@@ -57,7 +57,8 @@ export async function GET(request: NextRequest) {
     const category = searchParams.get("category");
     const search = searchParams.get("search");
 
-    const query: any = {};
+    // Base query excluding deleted products
+    const query: any = { isDeleted: false };
 
     // Filter by category
     if (category) query.productCategory = category;
