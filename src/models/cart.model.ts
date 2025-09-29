@@ -48,6 +48,22 @@ const CartSchema: Schema<CartInterface> = new Schema(
 );
 
 
+//Pre-save hook to always recalc totalPrice
+CartSchema.pre("save", async function (next) {
+  const cart = this as CartInterface; //here this refers to the cart document
+
+  await cart.populate("items.product");
+
+  let total = 0;
+  for (const item of cart.items) {
+    const product = item.product as ProductInterface; //it checks the types of the items.product
+    const price = product.finalPrice ?? product.price;
+    total += price * item.quantity;
+  }
+
+  cart.totalPrice = total;
+  next();
+});
 
 const CartModel = (mongoose.models.Cart as mongoose.Model<CartInterface>) || mongoose.model("Cart", CartSchema)
 export default CartModel
