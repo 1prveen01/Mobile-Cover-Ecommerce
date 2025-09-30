@@ -3,12 +3,14 @@ import CartModel from "@/models/cart.model";
 import mongoose from "mongoose";
 import { NextRequest , NextResponse } from "next/server";
 
-export async function GET(request: NextRequest , {params}:{params:{id:string}}) {
+
+//function for getting cart 
+export async function GET(request: NextRequest , {params}:{params:{userId:string}}) {
   try {
 
     await dbConnect()
 
-    const {id: userId} = params;
+    const { userId } = params;
 
     //validating userId
     if(!mongoose.Types.ObjectId.isValid(userId)){
@@ -18,22 +20,19 @@ export async function GET(request: NextRequest , {params}:{params:{id:string}}) 
         }, {status: 400})
     }
 
-    const cartItems = await CartModel.findOne({user: userId}).populate("items.product")
-    if(!cartItems){
+    const cart = await CartModel.findOne({user: userId}).populate("items.product")
+    if(!cart){
       return NextResponse.json({
         success: false,
-        message: "CartItem not found"
+        message: "cart not found"
       }, {status: 404})
     }
 
     return NextResponse.json({
       success: true,
-      message: "CartItem fetched Successfully",
-      data: cartItems,
+      message: "cart fetched Successfully",
+      data: cart,
     }, {status: 200})
-
-
-
 
   } catch (error) {
     console.error("Error in getting the cart items ", error);
