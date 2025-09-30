@@ -18,7 +18,7 @@ const deliveryAddress = z.object({
 // Delivery details schema
 const deliveryDetailsSchema = z.object({
   name: z.string().min(3, "Recipient name is required").max(40),
-  mobile: z.string().length(24, "Mobile number must be 10 digits"),
+  mobile: z.string().regex(/^[0-9]{10}$/, "Mobile number must be 10 digits"),
   address: deliveryAddress,
 });
 
@@ -29,9 +29,9 @@ const statusSchema = z.enum([
   "shipped",
   "delivered",
   "cancelled",
-]);
+]).default("pending");
 
-const paymentStatusSchema = z.enum(["pending", "paid", "failed", "refunded"]);
+const paymentStatusSchema = z.enum(["pending", "paid", "failed", "refunded"]).default("pending");
 
 const razorpayDetailsSchema = z.object({
    paymentId: z.string().min(6, "Invalid payment Id"),
