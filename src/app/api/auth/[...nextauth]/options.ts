@@ -2,7 +2,7 @@ import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import dbConnect from "@/lib/dbConnect";
-import UserModel from "@/models/users.model";
+import UserModel, { UserInterface } from "@/models/users.model";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -53,23 +53,27 @@ export const authOptions: NextAuthOptions = {
 
     async jwt({ token,user }) {
 
+      const u = user as UserInterface //safely cast user
         if(user){
-            token._id = user._id?.toString();
-            token.fullName = user.fullName;
-            token.isVerified = user.isVerified;
-            token.email = user.email;
-            token.mobileNumebr = user.mobileNumber;
+            token._id = u._id?.toString();
+            token.fullName = u.fullName;
+            token.isVerified = u.isVerified;
+            token.email = u.email;
+            token.mobileNumber = u.mobileNumber;
+            token.role = u.role; 
         }
       return token;
     },
     async session({ session, token }) {
 
+      
         if(token){
             session.user._id = token._id
             session.user.fullName = token.fullName
             session.user.isVerified = token.isVerified
             session.user.email = token.email
             session.user.mobileNumber = token.mobileNumber
+            session.user.role = token.role
         }
       return session;
     },
