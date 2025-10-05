@@ -4,6 +4,8 @@ import mongoose from "mongoose";
 import { NextRequest, NextResponse } from "next/server";
 
 
+
+//fetching orders under a user
 export async function GET(request : NextRequest , {params} : {params: {userId : string}}){
     try {
 
