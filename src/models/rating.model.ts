@@ -2,11 +2,14 @@ import mongoose , {Schema , Document} from "mongoose";
 import { UserInterface } from "./users.model";
 import { ProductInterface } from "./products.model";
 
+
 export interface RatingInterface extends Document {
     user: mongoose.Types.ObjectId | UserInterface;
     product: mongoose.Types.ObjectId | ProductInterface;
-    rating: number;
+    rating?: number;
     review?:string;
+    averageRating : number,
+    totalRating: number,
     createdAt: Date;
     updatedAt: Date;
 }
@@ -31,8 +34,18 @@ const ratingSchema:Schema<RatingInterface> = new Schema({
     review: {
         type: String,
         trim: true,
-    }
+    },
+    averageRating : {
+        type: Number,
+        default :0,
+    },
+    totalRating: {
+        type: Number,
+        default: 0,
+    },
+
 },
+
 {
     timestamps: true,
 })

@@ -6,6 +6,9 @@ import { checkAdminAuth } from "@/lib/checkAdminAuth";
 
 const isValidObjectId = (id: string) => mongoose.Types.ObjectId.isValid(id);
 
+
+
+//restoring after soft deleting(Admin only)
 export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string } }
