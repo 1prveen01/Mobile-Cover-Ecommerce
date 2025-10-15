@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import { NextRequest, NextResponse } from "next/server";
 
 
+//find order details
 export async function GET(request : NextRequest , {params}: {params : {orderId : string}}){
 
     try {

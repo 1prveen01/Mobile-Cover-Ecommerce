@@ -6,6 +6,9 @@ import mongoose from "mongoose";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
+
+
+//function for creating order
 export async function POST(request: NextRequest) {
   try {
     await dbConnect();
@@ -47,7 +50,7 @@ export async function POST(request: NextRequest) {
 
     if (directItems && directItems.length > 0) {
       //Direct purchase (items sent in request)
-      //If items were passed treat it as a direct purchase
+      // jif items  passed treat it as a direct purchase
       items = directItems;
     } else {
       //Checkout from Cart

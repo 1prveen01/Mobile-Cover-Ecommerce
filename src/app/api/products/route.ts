@@ -2,7 +2,6 @@ import dbConnect from "@/lib/dbConnect";
 import ProductModel from "@/models/products.model";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { productSchema } from "@/schemas/productSchema";
 
 // Get all products with search, pagination and category filter (public)
 export async function GET(request: NextRequest) {

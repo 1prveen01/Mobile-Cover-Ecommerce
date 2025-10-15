@@ -9,18 +9,6 @@ const mobileNumeberQuerySchema = z.object({
 
 export async function GET(request: Request) {
 
-    //validation for only GET method is accessed
-  if (request.method !== "GET") {
-    return Response.json(
-      {
-        success: false,
-        message: "Only GET method is allowed",
-      },
-      {
-        status: 405,
-      }
-    );
-  }
   await dbConnect();
 
   try {
