@@ -4,10 +4,15 @@ import api from "../axiosInstance";
 
 
 //function for registering user
-export async function registerUser(data: {name: string , email : string , phone: string , password: string}){
+export async function registerUser(data: {fullName: string , email : string , mobileNumber: string , password: string}){
     
-    const res = await api.post("/api/auth/sign-up", data)
+   try {
+    const res = await api.post("/api/users/sign-up", data);
     return res.data;
+  } catch (error: any) {
+    // Pass backend message to frontend
+    throw error.response?.data || { message: "Registration failed" };
+  }
 }
 
 //function for login user

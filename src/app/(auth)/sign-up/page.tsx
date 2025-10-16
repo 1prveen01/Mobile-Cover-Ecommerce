@@ -12,14 +12,12 @@ import { signUpSchema } from "@/schemas/signUpSchema";
 import { registerUser } from "@/lib/api/auth";
 
 export default function Component() {
- 
-
   //useState hooks
   const [showAlt, setShowAlt] = useState(false);
   const [formData, setFormData] = useState({
-    name: "",
+    fullName: "",
     email: "",
-    phone: "",
+    mobileNumber: "",
     password: "",
   });
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
@@ -31,6 +29,7 @@ export default function Component() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault(); //prevents refresh
     setLoading(true);
@@ -38,28 +37,29 @@ export default function Component() {
     setError("");
     setSuccess("");
 
-    //validate form data
     try {
+      //Validate with Zod
       signUpSchema.parse(formData);
+
+      // Send to backend if validation passes
+      const res = await registerUser(formData);
+      setSuccess("✅ Account created successfully!");
     } catch (error: any) {
+      console.error("Registration error:", JSON.stringify(error, null, 2));
+      // Handle Zod errors
       if (error instanceof z.ZodError) {
         const fieldErrors: { [key: string]: string } = {};
         error.issues.forEach(
           (e) => (fieldErrors[String(e.path[0])] = e.message)
         );
         setErrors(fieldErrors);
-        setLoading(false);
-        return;
       }
-    }
-
-    //validation successfull then res send to backend
-    try {
-      const res = await registerUser(formData);
-      setSuccess("✅ Account created successfully");
-    } catch (error: any) {
-      console.error(error);
-      setError(error.response?.data?.message || "❌ Registration failed!");
+      //Handle backend errors
+      else {
+        setError(error.response?.data?.message || "❌ Registration failed!");
+      }
+    } finally {
+      setLoading(false); // always stop loading
     }
   };
 
@@ -74,6 +74,7 @@ export default function Component() {
             src="/images/auth/login-bg.png"
             alt="Login background"
             fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 100vw"
             className="object-cover object-center"
             priority
           />
@@ -129,23 +130,22 @@ export default function Component() {
               Sign In
             </h2>
 
-            <form 
-            onSubmit={handleSubmit}
-            className="space-y-5">
+            <form onSubmit={handleSubmit} className="space-y-5">
               <div>
                 <label className="text-white text-md md:text-xl font-medium ">
                   Name{" "}
                 </label>
                 <input
-                  name="name"
+                  name="fullName"
                   type="text"
-                  value={formData.name}
+                  autoComplete="name"
+                  value={formData.fullName}
                   onChange={handleChange}
                   className="w-full max-w-sm my-2 px-3 py-2 border border-white bg-transparent text-white placeholder:text-gray-400 focus:border-1 focus:border-blue-500 focus:outline-none"
                   placeholder="Enter your full name"
                 />
-                {errors.name && (
-                  <p className="text-red-400 text-sm">{errors.name}</p>
+                {errors.fullName && (
+                  <p className="text-red-400 text-sm">{errors.fullName}</p>
                 )}
               </div>
               <div>
@@ -155,6 +155,7 @@ export default function Component() {
                 <input
                   type="email"
                   name="email"
+                  autoComplete="email"
                   value={formData.email}
                   onChange={handleChange}
                   className="w-full max-w-sm my-2 px-3 py-2 border border-white bg-transparent text-white placeholder:text-gray-400 focus:border-1 focus:border-blue-500 focus:outline-none"
@@ -171,12 +172,16 @@ export default function Component() {
                 </label>
                 <input
                   type="tel"
-                  name="phone"
-                  value={formData.phone}
+                  autoComplete="tel"
+                  name="mobileNumber"
+                  value={formData.mobileNumber}
                   onChange={handleChange}
                   className="w-full max-w-sm my-2 px-3 py-2 border border-white bg-transparent text-white placeholder:text-gray-400 focus:border-1 focus:border-blue-500 focus:outline-none"
                   placeholder="Enter your phone number"
                 />
+                {errors.mobileNumber && (
+                  <p className="text-red-400 text-sm">{errors.mobileNumber}</p>
+                )}
               </div>
 
               <div>
@@ -184,6 +189,7 @@ export default function Component() {
                   Password
                 </label>
                 <input
+                  autoComplete="new-password"
                   type="password"
                   name="password"
                   value={formData.password}
